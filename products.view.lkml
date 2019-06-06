@@ -42,6 +42,23 @@ view: products {
     sql: ${TABLE}.sku ;;
   }
 
+  dimension: rank_type {
+    case: {
+      when: {
+        sql: ${rank} >= 1 ;;
+        label: "low rank"
+      }
+      when: {
+        sql: ${rank} >= 500 ;;
+        label: "moderate rank"
+      }
+      when: {
+        sql: ${rank} >= 1000 ;;
+        label: "high rank"
+      }
+    }
+  }
+
   measure: count {
     type: count
     drill_fields: [id, item_name, inventory_items.count]
