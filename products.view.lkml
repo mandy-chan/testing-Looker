@@ -45,11 +45,11 @@ view: products {
   dimension: rank_type {
     case: {
       when: {
-        sql: ${rank} >= 1 ;;
+        sql: ${rank} <= 500 ;;
         label: "low rank"
       }
       when: {
-        sql: ${rank} >= 500 ;;
+        sql: ${rank} <= 1000 ;;
         label: "moderate rank"
       }
       else: "high rank"
