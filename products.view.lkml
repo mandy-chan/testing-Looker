@@ -52,10 +52,8 @@ view: products {
         sql: ${rank} >= 500 ;;
         label: "moderate rank"
       }
-      when: {
-        sql: ${rank} >= 1000 ;;
-        label: "high rank"
-      }
+      else: "high rank"
+
     }
   }
 
