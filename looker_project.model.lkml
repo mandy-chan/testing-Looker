@@ -64,7 +64,14 @@ explore: orders {
   }
 }
 
-explore: products {}
+explore: products {
+  sql_always_where: ${rank} >= 100 ;;
+  join: inventory_items {
+    type: left_outer
+    sql_on: ${inventory_items.product_id} = ${products.id} ;;
+    relationship: many_to_one
+  }
+}
 
 explore: schema_migrations {}
 
@@ -80,9 +87,18 @@ explore: users {}
 
 explore: users_nn {}
 
-explore: zozo_table_20190507 {}
+explore: zozo_table_20190507 {
+  fields: [ALL_FIELDS*, -zozo_table_20190507.users_count]
+  view_label: "Testing View Label"
+  always_filter: {
+    filters: {
+      field: users_first_name
+      value: "M%"
+    }
+  }
+}
 
-explore: zozo_table_20190508 {}
+explore: renaming_view_20190508 {}
 
 explore: zozo_table_20190509 {}
 

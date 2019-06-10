@@ -41,4 +41,20 @@ view: orders {
     type: count
     drill_fields: [id, users.id, users.first_name, users.last_name, order_items.count]
   }
+
+  measure: this_month_incomplete_count {
+    label: "Customers who haven't paid"
+    description: "Customers who haven't paid for their order within the past year"
+    type: count_distinct
+    sql: ${TABLE}.id ;;
+    filters: {
+      field: created_year
+      value: "1 year"
+    }
+    filters: {
+      field: status
+      value: "-complete"
+    }
+  }
+
 }

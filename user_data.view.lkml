@@ -27,4 +27,9 @@ view: user_data {
     type: count
     drill_fields: [id, users.id, users.first_name, users.last_name]
   }
+
+  measure: all_orders {
+    type: sum
+    sql: ${total_num_orders} ;;
+  }
 }

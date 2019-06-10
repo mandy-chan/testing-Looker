@@ -1,4 +1,4 @@
-view: zozo_table_20190508 {
+view: renaming_view_20190508 {
   sql_table_name: demo_db.zozo_table_20190508 ;;
 
   dimension: users_count {
