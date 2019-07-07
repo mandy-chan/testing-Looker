@@ -30,6 +30,11 @@ view: users {
     sql: ${TABLE}.country ;;
   }
 
+  dimension: nownow {
+    type: date
+    sql: now();;
+  }
+
   dimension_group: created {
     type: time
     timeframes: [
@@ -42,12 +47,41 @@ view: users {
       year
     ]
     sql: ${TABLE}.created_at ;;
+    html:
+      {% if rendered_value == users.nownow._rendered_value %}
+      <div style=" background-color: #d36b6b">{{ rendered_value }}</div>
+      {% else %}
+      <div style=" background-color: #dddddd">{{ rendered_value }}</div>
+      {% endif %};;
   }
 
   dimension: email {
     type: string
     sql: ${TABLE}.email ;;
   }
+
+  parameter: email_is_blank {
+    type: string
+    allowed_value: {
+      label: "BLANK"
+      value: "BLANK"
+    }
+    allowed_value: {
+      label: "NOT BLANK"
+      value: "NOT BLANK"
+    }
+  }
+
+  dimension: blank {
+    label_from_parameter: email_is_blank
+    sql:
+      CASE
+        WHEN {% parameter email_is_blank %} = 'BLANK' THEN ${email} = NULL
+           ELSE
+              ${email}
+           END ;;
+  }
+
 
   dimension: first_name {
     type: string
@@ -77,6 +111,25 @@ view: users {
   measure: count {
     type: count
     drill_fields: [detail*]
+  }
+
+  measure: max_created_date {
+    type: max
+    sql: ${created_month} ;;
+  }
+
+  measure: count_of_females {
+    type: count_distinct
+    filters:  {
+      field: gender
+      value: "f"
+    }
+    sql: ${gender} ;;
+  }
+
+  measure: count_states {
+    type: number
+    sql: COUNT(${state}) ;;
   }
 
   # ----- Sets of fields for drilling ------

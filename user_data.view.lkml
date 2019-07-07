@@ -8,6 +8,10 @@ view: user_data {
   }
 
   dimension: max_num_orders {
+    description: "Test Test Test Test Test Test Test Test Test Test Test Test
+    • Test Test Test Test
+    • Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test
+    Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test"
     type: number
     sql: ${TABLE}.max_num_orders ;;
   }
@@ -32,4 +36,6 @@ view: user_data {
     type: sum
     sql: ${total_num_orders} ;;
   }
+
+
 }

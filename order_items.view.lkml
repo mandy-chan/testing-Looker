@@ -33,6 +33,19 @@ view: order_items {
     sql: ${TABLE}.returned_at ;;
   }
 
+  dimension: liquid_date_returned {
+    sql: ${returned_date} ;;
+    html: <font color="green">{{rendered_value | date: "%U %B %D" }}</font> ;;
+  }
+
+# append: "-01"
+
+  measure: last_updated_date {
+    type: date
+    sql: MAX(${returned_month}) ;;
+    convert_tz: no
+  }
+
   dimension: sale_price {
     type: number
     sql: ${TABLE}.sale_price ;;
@@ -53,6 +66,26 @@ view: order_items {
   measure: count {
     type: count
     drill_fields: [id, orders.id, inventory_items.id]
+  }
+
+  measure: sum_retail_price {
+    type: sum
+    sql: ${products.retail_price} ;;
+    html:
+    {% if value >= median_sale_price._value %}
+    <p style="background-color: pink">Cheap</p>
+    {% elsif value >= median_sale_price._value}
+    <p style="color: blue; font-size:80%">Moderate</p>
+    {% else %}
+    <p style="color: black; font-size:100%">Expensive</p>
+    {% endif %};;
+  }
+
+  dimension: discounted_sale_price {
+    type: number
+    sql: ${sale_price} * 0.8 ;;
+    value_format_name: usd
+    html: <center>{{rendered_value}}</center>;;
   }
 
 }

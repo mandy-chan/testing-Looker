@@ -15,6 +15,37 @@ view: products {
   dimension: category {
     type: string
     sql: ${TABLE}.category ;;
+
+  }
+
+  dimension: category_to_google {
+    type: string
+    sql: ${TABLE}.category ;;
+    html: <a href="https://google.com" target="_blank">{{value}}</a> ;;
+  }
+
+  dimension: category_with_link {
+    type: string
+    sql: ${TABLE}.category ;;
+    html:  <a href="https://www.google.com/search?q={{value}}" target="_blank">{{ value }}</a> ;;
+  }
+
+  dimension: linking_with_link_parameter {
+    type: string
+    sql: ${TABLE}.category ;;
+    link: {
+      label: "Google Search"
+      url: "https://www.google.com"
+    }
+  }
+
+  dimension: linking_with_link_parameter_liquid {
+    type: string
+    sql: ${TABLE}.category ;;
+    link: {
+      label: "Google Search - {{value}}"
+      url: "https://www.google.com/search?q={{value}}"
+    }
   }
 
   dimension: department {

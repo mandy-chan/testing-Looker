@@ -15,6 +15,7 @@ view: orders {
       date,
       week,
       month,
+      month_name,
       quarter,
       year
     ]
@@ -30,6 +31,7 @@ view: orders {
     type: yesno
     sql: ${status} = "complete" ;;
   }
+
 
   dimension: user_id {
     type: number
@@ -56,5 +58,21 @@ view: orders {
       value: "-complete"
     }
   }
+
+  measure: count_complete {
+    type: count_distinct
+    sql:  ${user_id} ;;
+    drill_fields: [id, users.id, users.first_name, users.last_name, order_items.count]
+    filters: {
+      field: is_order_paid
+      value: "yes"
+    }
+  }
+
+  measure: percent_completed_users {
+    type: number
+    sql: ${count_complete}/${count} * 1.0 ;;
+  }
+
 
 }

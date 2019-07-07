@@ -2,6 +2,7 @@ connection: "thelook"
 
 # include all the views
 include: "*.view"
+include: "*.dashboard"
 
 datagroup: looker_project_default_datagroup {
   # sql_trigger: SELECT MAX(id) FROM etl_log;;
@@ -13,6 +14,12 @@ persist_with: looker_project_default_datagroup
 explore: connection_reg_r3 {}
 
 explore: derived_test_table_3_20190510 {}
+
+explore: sql_runner_practice {}
+
+explore: derived_table_test_w_parameter {}
+
+explore: view_with_derived_table {}
 
 explore: events {
   join: users {
@@ -33,7 +40,7 @@ explore: inventory_items {
 explore: order_items {
   join: orders {
     type: left_outer
-    sql_on: ${order_items.order_id} = ${orders.id} ;;
+    sql_on: ${order_items.id} = ${orders.id} ;;
     relationship: many_to_one
   }
 
