@@ -12,10 +12,25 @@ view: products {
     sql: ${TABLE}.brand ;;
   }
 
+  dimension: brand_with_filterable_value{
+    type: string
+    sql: ${TABLE}.brand ;;
+    html: <a href="/explore/looker_project/order_items?fields=products.brand_with_filterable_value,products.count&f[products.brand]={{filterable_value}}">{{ value }}</a> ;;
+  }
+
   dimension: category {
     type: string
     sql: ${TABLE}.category ;;
+  }
 
+  dimension: category_user_attributes {
+    type: string
+    sql: ${TABLE}.category ;;
+    html: {% if _user_attributes['company'] == 'Looker' %}
+            <p style="color: #5A2FC2; background-color: #E5E5E6; font-size: 180%; font-weight: bold; text-align:center">{{value}}</p>
+          {% else %}
+            <p style="color: #166088; background-color: #43B7E7; font-size: 180%; font-weight: bold; text-align:center">{{value}}</p>
+          {% endif %} ;;
   }
 
   dimension: category_to_google {
@@ -48,6 +63,15 @@ view: products {
     }
   }
 
+  dimension: category_for_filter_dashboard {
+    type: string
+    sql: ${TABLE}.category ;;
+    link: {
+      label: "To Category"
+      url: "/dashboards/6?Category={{ value | url_encode }}&Brand={{ _filters['products.brand'] | url_encode }}"
+    }
+  }
+
   dimension: department {
     type: string
     sql: ${TABLE}.department ;;
@@ -66,6 +90,7 @@ view: products {
   dimension: retail_price {
     type: number
     sql: ${TABLE}.retail_price ;;
+    value_format_name: usd
   }
 
   dimension: sku {
@@ -98,6 +123,8 @@ view: products {
     sql: ${retail_price} ;;
     value_format_name: usd
   }
+
+
 
   measure: gross_margin {
     type: number

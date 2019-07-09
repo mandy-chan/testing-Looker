@@ -68,18 +68,37 @@ view: order_items {
     drill_fields: [id, orders.id, inventory_items.id]
   }
 
-  measure: sum_retail_price {
-    type: sum
-    sql: ${products.retail_price} ;;
-    html:
-    {% if value >= median_sale_price._value %}
-    <p style="background-color: pink">Cheap</p>
-    {% elsif value >= median_sale_price._value}
-    <p style="color: blue; font-size:80%">Moderate</p>
-    {% else %}
-    <p style="color: black; font-size:100%">Expensive</p>
-    {% endif %};;
+  measure: count_with_filter {
+    type: count
+    drill_fields: [id, orders.id, inventory_items.id]
+    html: <a href="{{ link }}&f[orders.id]=>100">{{ rendered_value }}</a> ;;
   }
+
+
+  measure: sum_of_sale_price {
+    type: sum
+    sql: ${sale_price};;
+    html:
+    {% if value <= 250 and order_items.largest_order._in_query %}
+      <p style="background-color: pink">{{rendered_value}}</p>
+    {% elsif value > 250 and order_items.largest_order._in_query %}
+      <p style="background-color: blue">{{rendered_value}}</p>
+    {% else %}
+      {{rendered_value}}
+    {% endif %} ;;
+  }
+
+# {% if products.category._in_query and value >= 75000 %}
+#               <font color="green">{{rendered_value}}</font>
+#           {% elsif products.category._in_query and value >= 50000 and value < 75000 %}
+#               <font color="goldenrod">{{rendered_value}}</font>
+#           {% elsif products.category._in_query %}
+#               <font color="red">{{rendered_value}}</font>
+#           {% else %}
+#               {{rendered_value}}
+#           {% endif %}
+#           ;;
+
 
   dimension: discounted_sale_price {
     type: number
