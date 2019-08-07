@@ -11,6 +11,12 @@ datagroup: looker_project_default_datagroup {
 
 persist_with: looker_project_default_datagroup
 
+access_grant: access_grants_1 {
+  allowed_values: ["white"]
+  user_attribute: color
+}
+
+
 explore: sql_runner_practice {}
 
 explore: derived_table_test_w_parameter {}
@@ -94,6 +100,11 @@ explore: users_with_access_filter {
     field: users.city
     user_attribute: company
     }
+}
+
+explore: users_with_access_grants {
+  view_name: users
+  required_access_grants: [access_grants_1]
 }
 
 explore: users_nn {}
