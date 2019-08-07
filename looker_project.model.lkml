@@ -6,7 +6,7 @@ include: "*.dashboard"
 
 datagroup: looker_project_default_datagroup {
   # sql_trigger: SELECT MAX(id) FROM etl_log;;
-  max_cache_age: "2 hour"
+  max_cache_age: "4 hour"
 }
 
 persist_with: looker_project_default_datagroup
