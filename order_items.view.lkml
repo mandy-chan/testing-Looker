@@ -33,17 +33,60 @@ view: order_items {
     sql: ${TABLE}.returned_at ;;
   }
 
-  dimension: liquid_date_returned {
-    sql: ${returned_date} ;;
-    html: <font color="green">{{rendered_value | date: "%U %B %D" }}</font> ;;
+  dimension: liquid_variable_value {
+    sql: ${products.brand} ;;
+    html:
+    {% if sale_price._value >= 10 AND sale_price._value <= 20 %}
+    <font color="red">{{rendered_value}}</font>
+    {% elsif sale_price.value > 20 AND sale_price._value <= 40 %}
+    <font color="green">{{rendered_value}}</font>
+    {% else %}
+    <font color="blue">{{rendered_value}}</font>
+    {% endif %} ;;
   }
 
-# append: "-01"
+  dimension: liquid_category_returned {
+    sql: ${products.category};;
+    link: {
+      label: "Drill into charges"
+      url:"https://www.google.com"
+    }
+    html:
+    <a href="/dashboards/6?Liquid Category Returned={{ value | url_encode }}" target="_self">
+
+    <font color="green">{{ products.category._value }}</font></a> ;;
+  }
 
   measure: last_updated_date {
     type: date
     sql: MAX(${returned_month}) ;;
     convert_tz: no
+  }
+
+  parameter: sale_price_metric_picker {
+    description: "Use with the Sale Price Metric measure"
+    type: unquoted
+    allowed_value: {
+      label: "Total Sale Price"
+      value: "SUM"
+    }
+    allowed_value: {
+      label: "Average Sale Price"
+      value: "AVG"
+    }
+    allowed_value: {
+      label: "Maximum Sale Price"
+      value: "MAX"
+    }
+    allowed_value: {
+      label: "Minimum Sale Price"
+      value: "MIN"
+    }
+  }
+
+  measure: sale_price_metric {
+    type: number
+    sql: {% parameter sale_price_metric_picker %}(${sale_price}) ;;
   }
 
   dimension: sale_price {
@@ -57,11 +100,19 @@ view: order_items {
     value_format_name: usd
   }
 
-  measure: median_sale_price {
-    type: median
-    sql: ${sale_price} ;;
-    value_format_name: usd
+  measure: division {
+    type: number
+    sql: CASE WHEN ${sale_price}/ ${largest_order} > 1 THEN  ${sale_price}/ ${largest_order}
+         ELSE 0 END;;
+    value_format: "0\%"
+    html:
+    {% if value > 0 %}
+    <font color="darkgreen"> + {{ rendered_value }}</font>
+    {% else %}
+    <font color="darkred">{{ rendered_value }}</font>
+    {% endif %} ;;
   }
+
 
   measure: count {
     type: count

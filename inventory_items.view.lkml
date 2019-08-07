@@ -26,6 +26,21 @@ view: inventory_items {
     sql: ${TABLE}.created_at ;;
   }
 
+  dimension_group: time_between_created_and_sold{
+   type: time
+   sql: NOW() ;;
+ }
+
+  measure: created_measure {
+    type: date_time
+    sql: MAX(${created_raw}) ;;
+  }
+
+  measure: sold_measure {
+    type: date_time
+    sql: NOW() ;;
+  }
+
   dimension: product_id {
     type: number
     # hidden: yes

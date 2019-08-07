@@ -12,6 +12,25 @@ view: users {
     sql: ${TABLE}.age ;;
   }
 
+  measure: percent_of_age {
+    type: percent_of_total
+    sql: ${users_over_21} ;;
+  }
+
+  measure: users_over_21 {
+    type: count
+    filters: {
+      field: age
+      value: "> 21"
+    }
+  }
+
+  measure: percentage_over_21 {
+    type: number
+    sql: ${users_over_21}/${count} ;;
+    value_format: "0%"
+  }
+
   dimension: age_tier {
     type: tier
     tiers: [10, 20, 30, 40, 50, 60, 70, 80, 90]

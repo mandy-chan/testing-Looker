@@ -11,10 +11,6 @@ datagroup: looker_project_default_datagroup {
 
 persist_with: looker_project_default_datagroup
 
-explore: connection_reg_r3 {}
-
-explore: derived_test_table_3_20190510 {}
-
 explore: sql_runner_practice {}
 
 explore: derived_table_test_w_parameter {}
@@ -71,16 +67,18 @@ explore: orders {
   }
 }
 
-explore: products {
-  sql_always_where: ${rank} >= 100 ;;
+explore: products_all_the_liquid {
   join: inventory_items {
     type: left_outer
-    sql_on: ${inventory_items.product_id} = ${products.id} ;;
+    sql_on: ${inventory_items.product_id} = ${products_all_the_liquid.id} ;;
     relationship: many_to_one
   }
+
 }
 
-explore: schema_migrations {}
+explore: order_items_parameter {}
+
+explore: dt_with_templated_filters {}
 
 explore: user_data {
   join: users {
@@ -90,7 +88,13 @@ explore: user_data {
   }
 }
 
-explore: users {}
+explore: users_with_access_filter {
+  view_name: users
+  access_filter: {
+    field: users.city
+    user_attribute: company
+    }
+}
 
 explore: users_nn {}
 

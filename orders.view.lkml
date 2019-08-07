@@ -32,7 +32,6 @@ view: orders {
     sql: ${status} = "complete" ;;
   }
 
-
   dimension: user_id {
     type: number
     # hidden: yes
@@ -57,6 +56,12 @@ view: orders {
       field: status
       value: "-complete"
     }
+  }
+
+  measure: count_cancelled_or_pending {
+    label: "Cancelled or pending"
+    type: count_distinct
+    sql: CASE WHEN ${status} LIKE 'cancelled' OR ${status} LIKE 'pending' THEN ${TABLE}.id ELSE NULL END ;;
   }
 
   measure: count_complete {
