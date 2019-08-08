@@ -16,12 +16,13 @@ access_grant: access_grants_1 {
   user_attribute: color
 }
 
+explore: always_filter_workaround {}
 
 explore: sql_runner_practice {}
 
 explore: derived_table_test_w_parameter {}
 
-explore: view_with_derived_table {}
+explore: pdt1 {}
 
 explore: events {
   join: users {
@@ -107,7 +108,9 @@ explore: users_with_access_grants {
   required_access_grants: [access_grants_1]
 }
 
-explore: users_nn {}
+explore: users_with_sql_always_filter {
+  sql_always_where: ${first_name} LIKE "%Man%" ;;
+}
 
 explore: zozo_table_20190507 {
   fields: [ALL_FIELDS*, -zozo_table_20190507.users_count]

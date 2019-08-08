@@ -1,4 +1,5 @@
 view: order_items {
+  label: "laaaaaa"
   sql_table_name: demo_db.order_items ;;
 
   dimension: id {
@@ -14,8 +15,8 @@ view: order_items {
   }
 
   dimension: order_id {
+    label: "{{ _view._name }} Name"
     type: number
-    # hidden: yes
     sql: ${TABLE}.order_id ;;
   }
 

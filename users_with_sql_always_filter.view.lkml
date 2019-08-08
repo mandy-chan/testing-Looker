@@ -1,4 +1,4 @@
-view: users_nn {
+view: users_with_sql_always_filter {
   sql_table_name: demo_db.usersNN ;;
 
   dimension: id {

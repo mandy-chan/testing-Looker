@@ -1,5 +1,5 @@
-view: schema_migrations {
-  sql_table_name: demo_db.schema_migrations ;;
+view: always_filter_workaround {
+  sql_table_name: (SELECT * FROM demo_db.schema_migrations WHERE filename like "%add_item%")   ;;
 
   dimension: filename {
     type: string
