@@ -12,6 +12,14 @@ view: products {
     sql: ${TABLE}.brand ;;
   }
 
+  measure: practicing {
+  type: count_distinct
+  sql: CASE WHEN ${rank} >= 50000 THEN ${retail_price}
+        ELSE NULL
+        END ;;
+  drill_fields: [products.category, products.rank, products.retail_price]
+  }
+
   dimension: category {
     type: string
     sql: ${TABLE}.category ;;

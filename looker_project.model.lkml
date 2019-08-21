@@ -16,6 +16,8 @@ access_grant: access_grants_1 {
   user_attribute: color
 }
 
+explore: derived_table {}
+
 explore: always_filter_workaround {}
 
 explore: sql_runner_practice {}
@@ -64,6 +66,13 @@ explore: order_items {
     sql_on: ${inventory_items.product_id} = ${products.id} ;;
     relationship: many_to_one
   }
+
+  join: test_derived_user_cohort {
+    view_label: "XX - User Cohort Filters"
+    type: inner
+    relationship: many_to_one
+    sql_on: ${users.id} = ${test_derived_user_cohort.user_id} ;;
+  }
 }
 
 explore: orders {
@@ -71,6 +80,16 @@ explore: orders {
     type: left_outer
     sql_on: ${orders.user_id} = ${users.id} ;;
     relationship: many_to_one
+  }
+}
+
+explore: users_cohort {
+  from: users
+  join: test_derived_user_cohort {
+    view_label: "XX - User Cohort Filters"
+    type: inner
+    relationship: many_to_one
+    sql_on: ${users_cohort.id} = ${test_derived_user_cohort.user_id} ;;
   }
 }
 

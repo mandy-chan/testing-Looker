@@ -90,6 +90,13 @@ view: order_items {
     sql: {% parameter sale_price_metric_picker %}(${sale_price}) ;;
   }
 
+  dimension: hash {
+    type: string
+    sql: {% if _user_attributes['name_of_attribute'] == "Mandy" %}
+    MD5(${TABLE}.sale_price)
+    {% endif %} ;;
+  }
+
   dimension: sale_price {
     type: number
     sql: ${TABLE}.sale_price ;;
@@ -129,7 +136,7 @@ view: order_items {
 
   measure: sum_of_sale_price {
     type: sum
-    sql: ${sale_price};;
+    sql: COALESCE(${sale_price},0);;
     html:
     {% if value <= 250 and order_items.largest_order._in_query %}
       <p style="background-color: pink">{{rendered_value}}</p>

@@ -54,6 +54,12 @@ view: users {
     sql: now();;
   }
 
+  dimension: created_atdate {
+    type: yesno
+    sql: CASE WHEN ${created_week} < ${created_month} THEN 1
+      ELSE 0 END;;
+    }
+
   dimension_group: created {
     type: time
     timeframes: [
@@ -77,6 +83,14 @@ view: users {
   dimension: email {
     type: string
     sql: ${TABLE}.email ;;
+  }
+
+  # Goal: Name is Sam or Email is Sam
+  # User enters Sam and it searches for either name or email field
+
+  filter: name_or_email {
+    sql: {% condition name_or_email %} ${first_name} {% endcondition %}
+    OR {% condition name_or_email %} ${email} {% endcondition %}  ;;
   }
 
   parameter: email_is_blank {
