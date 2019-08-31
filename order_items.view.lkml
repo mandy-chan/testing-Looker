@@ -22,15 +22,7 @@ view: order_items {
 
   dimension_group: returned {
     type: time
-    timeframes: [
-      raw,
-      time,
-      date,
-      week,
-      month,
-      quarter,
-      year
-    ]
+    timeframes: []
     sql: ${TABLE}.returned_at ;;
   }
 
@@ -56,6 +48,27 @@ view: order_items {
     <a href="/dashboards/6?Liquid Category Returned={{ value | url_encode }}" target="_self">
 
     <font color="green">{{ products.category._value }}</font></a> ;;
+  }
+
+  dimension: removing_drills_if_under_different_model{
+    type: string
+    sql: ${products.category} ;;
+#     html: {% if _model._name != 'looker_project' %}
+#             "yes"
+#           {% else %}
+#             "no"
+#           {% endif %} ;;
+    link: {
+      label: "Google 1"
+      url: "{% if _model._name == 'looker_project' %}
+            https://www.google.com={{ value }}
+
+            {% endif %}"
+    }
+    link: {
+      label: "Google 2"
+      url: "https://www.google.com={{ value }}"
+    }
   }
 
   measure: last_updated_date {
@@ -95,6 +108,12 @@ view: order_items {
     sql: {% if _user_attributes['name_of_attribute'] == "Mandy" %}
     MD5(${TABLE}.sale_price)
     {% endif %} ;;
+  }
+
+  dimension: sale_price_with_format {
+    type: number
+    sql: ${TABLE}.sale_price*10000000 ;;
+    value_format: "0"
   }
 
   dimension: sale_price {
@@ -146,6 +165,14 @@ view: order_items {
       {{rendered_value}}
     {% endif %} ;;
   }
+
+  measure: cumulative_sale_price {
+    type: running_total
+    direction: "column"
+    sql: ${sum_of_sale_price} ;;
+    value_format_name: usd
+  }
+
 
 # {% if products.category._in_query and value >= 75000 %}
 #               <font color="green">{{rendered_value}}</font>

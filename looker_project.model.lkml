@@ -16,6 +16,23 @@ access_grant: access_grants_1 {
   user_attribute: color
 }
 
+explore: users_datestart_dateend {}
+
+explore: order_items_with_dt {
+  from: order_items
+  join: derived_table {
+    type: left_outer
+    sql_on: ${order_items_with_dt.id} = ${derived_table.id} ;;
+    relationship: one_to_one
+  }
+
+  join: products {
+    type: left_outer
+    sql_on: ${products.id} = ${order_items_with_dt.id} ;;
+    relationship: many_to_many
+  }
+
+}
 explore: derived_table {}
 
 explore: always_filter_workaround {}
@@ -118,7 +135,7 @@ explore: users_with_access_filter {
   view_name: users
   access_filter: {
     field: users.city
-    user_attribute: company
+    user_attribute: city
     }
 }
 

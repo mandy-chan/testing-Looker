@@ -2,6 +2,7 @@ view: derived_table{
   derived_table: {
     sql:
     SELECT
+      order_items.id as id,
       orders.status AS status,
       COUNT(*) AS count
 
@@ -11,9 +12,14 @@ view: derived_table{
      LEFT JOIN demo_db.inventory_items AS inventory_items ON order_items.inventory_item_id = inventory_items.id
      LEFT JOIN demo_db.products AS products ON inventory_items.product_id = products.id
 
-     GROUP BY 1
+     GROUP BY 2
      LIMIT 500
        ;;
+  }
+
+  dimension: stringstring {
+    type: string
+    sql: "stringstring" ;;
   }
 
   dimension: id {
@@ -30,7 +36,5 @@ view: derived_table{
     type: sum
     sql: ${TABLE}.count ;;
   }
-
-
 
 }

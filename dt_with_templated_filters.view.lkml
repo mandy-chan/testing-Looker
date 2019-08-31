@@ -5,11 +5,13 @@ view: dt_with_templated_filters {
                   SUM(order_items.sale_price) AS total_sale_price,
                   AVG(order_items.sale_price) AS avg_sale_price,
                   MAX(returned_at) AS latest_date_returned,
-                  MIN(returned_at) AS earliest_date_returned
-
+                  MIN(returned_at) AS earliest_date_returned,
+                  returned_at
 
            FROM demo_db.order_items  AS order_items
-           WHERE {% condition the_sales_price %} order_items.sale_price {% endcondition %}
+           WHERE {% condition the_sales_price %} order_items.sales_price {% endcondition %}
+           OR  {% condition the_date_filter %} order_items.returned_at {% endcondition %}
+
     ;;
     }
 
@@ -29,12 +31,12 @@ view: dt_with_templated_filters {
       sql: ${TABLE}.avg_sale_price ;;
     }
 
-    dimension: division {
-      type: number
-      sql: CASE WHEN ${total_sale_price} = 0
-                THEN NULL
-                ELSE ${avg_sale_price}/${total_sale_price}) * 100;;
-    }
+#     dimension: division {
+#       type: number
+#       sql: CASE WHEN ${total_sale_price} = 0
+#                 THEN NULL
+#                 ELSE ${avg_sale_price}/${total_sale_price}) * 100;;
+#     }
 
     dimension: latest_date {
       type: date
@@ -49,4 +51,13 @@ view: dt_with_templated_filters {
     filter: the_sales_price {
       type: number
     }
+
+  filter: the_date_filter {
+    type: date
+  }
+
+  dimension: the_date {
+    type: date
+    sql: ${TABLE}.returned_at ;;
+  }
 }

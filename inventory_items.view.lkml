@@ -1,6 +1,10 @@
 view: inventory_items {
   sql_table_name: demo_db.inventory_items ;;
 
+  dimension: stringstring {
+    type: string
+    sql: "stringstring" ;;
+  }
   dimension: id {
     primary_key: yes
     type: number
@@ -14,15 +18,7 @@ view: inventory_items {
 
   dimension_group: created {
     type: time
-    timeframes: [
-      raw,
-      time,
-      date,
-      week,
-      month,
-      quarter,
-      year
-    ]
+    timeframes: []
     sql: ${TABLE}.created_at ;;
   }
 
@@ -49,15 +45,7 @@ view: inventory_items {
 
   dimension_group: sold {
     type: time
-    timeframes: [
-      raw,
-      time,
-      date,
-      week,
-      month,
-      quarter,
-      year
-    ]
+    timeframes: []
     sql: ${TABLE}.sold_at ;;
   }
 
