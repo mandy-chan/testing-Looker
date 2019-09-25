@@ -158,6 +158,7 @@ view: users {
       value: "f"
     }
     sql: ${gender} ;;
+    html: <div style="background-color: green">{{ value }}</div>;;
   }
 
   measure: count_states {

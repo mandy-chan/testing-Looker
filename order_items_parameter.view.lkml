@@ -23,7 +23,7 @@ view: order_items_parameter {
 
 
   parameter: date_type {
-    type: unquoted
+    type: string
     allowed_value: {
       label: "day"
       value: "day"
@@ -40,7 +40,7 @@ view: order_items_parameter {
 
   dimension: filter_at_date {
     sql:
-    {% if date_type._parameter_value == 'day' %}
+    {% if date_type._parameter_value == "'day'" %}
     ${returned_date}
     {% elsif date_type._parameter_value == 'month' %}
     ${returned_month}
@@ -60,5 +60,44 @@ view: order_items_parameter {
     null
     {% endif %} ;;
   }
+
+  dimension: sale_price {
+    type: number
+    sql: ${TABLE}.sale_price ;;
+  }
+
+  dimension: testing_out_value_with_hello {
+    description: "ag_name.description"
+    type: string
+    sql: "hello" ;;
+    link: {
+      label: "testing out ._value"
+      url: "https://google.com/{{ sale_price._value }}/dashboard/app_usage/app-usage/"
+    }
+  }
+
+  dimension: testing_out_value {
+    description: "ag_name.description"
+    type: string
+    sql: ${TABLE}.sale_price ;;
+    link: {
+      label: "testing out ._value"
+      url: "https://google.com/{{ sale_price._value }}/dashboard/app_usage/app-usage/"
+    }
+  }
+
+  dimension: if_statement_within_if_statement {
+    description: "ag_name.description"
+    type: string
+    sql: ${TABLE}.sale_price ;;
+    link: {
+      label: "{% if id._value > 45 %} {{ value }} {% endif %}"
+      url: "https://google.com/{% if sale_price._value == 6.95 %}6.95{% endif %}/dashboard/app_usage/app-usage/"
+    }
+  }
+
+
+
+
 
   }

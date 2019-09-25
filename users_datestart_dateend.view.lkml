@@ -4,14 +4,17 @@ view: users_datestart_dateend {
     demo_db.users
   {% elsif testdb._parameter_value == 'demo_db.orders' %}
     demo_db.orders
+  {% elsif testdb._is_filtered %}
+    1=1
   {% else %}
-    NULL
+    "chili"
   {% endif %} ;;
 
 parameter: testdb {
     type: unquoted
     allowed_value: { label: "users" value: "demo_db.users" }
     allowed_value: { label: "orders" value: "demo_db.orders" }
+    allowed_value: { label: "products" value: "demo_db.products" }
   }
 
   dimension: id {

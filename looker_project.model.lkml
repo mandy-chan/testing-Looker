@@ -16,6 +16,8 @@ access_grant: access_grants_1 {
   user_attribute: color
 }
 
+explore: pdt2 {}
+
 explore: users_datestart_dateend {}
 
 explore: order_items_with_dt {
@@ -90,6 +92,12 @@ explore: order_items {
     relationship: many_to_one
     sql_on: ${users.id} = ${test_derived_user_cohort.user_id} ;;
   }
+
+  join: order_items_ndt {
+    relationship: one_to_one
+    type: left_outer
+    sql_on: 1=1 ;;
+  }
 }
 
 explore: orders {
@@ -98,6 +106,7 @@ explore: orders {
     sql_on: ${orders.user_id} = ${users.id} ;;
     relationship: many_to_one
   }
+
 }
 
 explore: users_cohort {
@@ -157,6 +166,13 @@ explore: zozo_table_20190507 {
       value: "M%"
     }
   }
+}
+
+map_layer: chapter_01 {
+  feature_key: "2019_SVNJB_Chapter_Boundaries"
+  property_key: "Berrryessa/Milpitas NJB"
+  format: topojson
+  file: "2019_SVNJB_Chapter_Boundaries.topojson"
 }
 
 explore: renaming_view_20190508 {}

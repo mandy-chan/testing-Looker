@@ -1,5 +1,6 @@
+include: "*.view"
+
 view: order_items {
-  label: "laaaaaa"
   sql_table_name: demo_db.order_items ;;
 
   dimension: id {
@@ -18,12 +19,29 @@ view: order_items {
     label: "{{ _view._name }} Name"
     type: number
     sql: ${TABLE}.order_id ;;
+    value_format_name: decimal_0
   }
 
   dimension_group: returned {
     type: time
     timeframes: []
     sql: ${TABLE}.returned_at ;;
+  }
+
+  dimension_group: returned_fiscal {
+    type: time
+    timeframes: [fiscal_quarter, fiscal_quarter_of_year, fiscal_year]
+    sql: ${TABLE}.returned_at ;;
+  }
+
+  measure: monthly_sales_price {
+    type: sum
+    sql: (${TABLE}.sale_price) ;;
+  }
+
+  measure: monthly_avg_per_day {
+    type: sum
+    sql: (${TABLE}.sale_price) / DAY(LAST_DAY(${TABLE}.returned_at)) ;;
   }
 
   dimension: liquid_variable_value {
@@ -119,6 +137,31 @@ view: order_items {
   dimension: sale_price {
     type: number
     sql: ${TABLE}.sale_price ;;
+    value_format_name: usd_0
+  }
+
+  measure: sum_of_sale_price {
+    type: sum
+    sql: COALESCE(${sale_price},0);;
+    value_format_name: usd_0
+    html:
+    {% if value <= 250 and order_items.largest_order._in_query %}
+      <p style="background-color: pink">{{rendered_value}}</p>
+    {% elsif value > 250 and order_items.largest_order._in_query %}
+      <p style="background-color: blue">{{rendered_value}}</p>
+    {% else %}
+      {{rendered_value}}
+    {% endif %} ;;
+  }
+
+  measure: total_sale_price {
+    type: sum
+    sql: ${sale_price} ;;
+  }
+
+  measure: percent_of_total {
+    type: percent_of_total
+    sql: ${total_sale_price};;
   }
 
   measure: largest_order {
@@ -127,11 +170,16 @@ view: order_items {
     value_format_name: usd
   }
 
+  measure: formatting {
+    type: number
+    sql:coalesce(1.0*${total_sale_price}/NULLIF(${order_id},0),0) ;;
+    value_format_name: usd
+  }
+
   measure: division {
     type: number
     sql: CASE WHEN ${sale_price}/ ${largest_order} > 1 THEN  ${sale_price}/ ${largest_order}
          ELSE 0 END;;
-    value_format: "0\%"
     html:
     {% if value > 0 %}
     <font color="darkgreen"> + {{ rendered_value }}</font>
@@ -143,27 +191,27 @@ view: order_items {
 
   measure: count {
     type: count
-    drill_fields: [id, orders.id, inventory_items.id]
+    link: {
+      label: "testing out"
+      url: "google.com"
+    }
+    drill_fields: [id, orders.id, inventory_items.id, products.category]
+  }
+
+# gives the link to the measure:count drill field
+
+  measure: showing_all {
+    type: count
+    link: {
+      label: "showing all"
+      url: "{{count._link}}"
+    }
   }
 
   measure: count_with_filter {
     type: count
     drill_fields: [id, orders.id, inventory_items.id]
     html: <a href="{{ link }}&f[orders.id]=>100">{{ rendered_value }}</a> ;;
-  }
-
-
-  measure: sum_of_sale_price {
-    type: sum
-    sql: COALESCE(${sale_price},0);;
-    html:
-    {% if value <= 250 and order_items.largest_order._in_query %}
-      <p style="background-color: pink">{{rendered_value}}</p>
-    {% elsif value > 250 and order_items.largest_order._in_query %}
-      <p style="background-color: blue">{{rendered_value}}</p>
-    {% else %}
-      {{rendered_value}}
-    {% endif %} ;;
   }
 
   measure: cumulative_sale_price {
@@ -191,6 +239,14 @@ view: order_items {
     sql: ${sale_price} * 0.8 ;;
     value_format_name: usd
     html: <center>{{rendered_value}}</center>;;
+  }
+
+# checking map layer
+
+  dimension: zip_code_map_test {
+    type: zipcode
+    map_layer_name: chapter_01
+    sql: 1=1;;
   }
 
 }

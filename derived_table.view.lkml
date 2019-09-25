@@ -15,6 +15,8 @@ view: derived_table{
      GROUP BY 2
      LIMIT 500
        ;;
+  sql_trigger_value: SELECT CURDATE() ;;
+  indexes: ["id"]
   }
 
   dimension: stringstring {

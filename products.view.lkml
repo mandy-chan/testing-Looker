@@ -12,7 +12,7 @@ view: products {
     sql: ${TABLE}.brand ;;
   }
 
-  measure: practicing {
+  measure: count_distinct_case_when_with_drill {
   type: count_distinct
   sql: CASE WHEN ${rank} >= 50000 THEN ${retail_price}
         ELSE NULL
@@ -55,6 +55,7 @@ view: products {
     type: count
     drill_fields: [id, item_name, inventory_items.count]
   }
+
 
   measure: average_retail_price {
     type: average

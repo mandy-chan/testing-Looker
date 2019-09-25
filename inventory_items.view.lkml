@@ -14,12 +14,14 @@ view: inventory_items {
   dimension: cost {
     type: number
     sql: ${TABLE}.cost ;;
+    label: "cost from 28 days"
   }
 
   dimension_group: created {
     type: time
     timeframes: []
     sql: ${TABLE}.created_at ;;
+    label: "created from 3 days"
   }
 
   dimension_group: time_between_created_and_sold{
