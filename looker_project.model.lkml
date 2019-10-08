@@ -3,6 +3,7 @@ connection: "thelook"
 # include all the views
 include: "*.view"
 include: "*.dashboard"
+include: "extends_for_explores.explore.lkml"
 
 datagroup: looker_project_default_datagroup {
   # sql_trigger: SELECT MAX(id) FROM etl_log;;
@@ -15,8 +16,6 @@ access_grant: access_grants_1 {
   allowed_values: ["white"]
   user_attribute: color
 }
-
-explore: pdt2 {}
 
 explore: users_datestart_dateend {}
 
@@ -42,8 +41,6 @@ explore: always_filter_workaround {}
 explore: sql_runner_practice {}
 
 explore: derived_table_test_w_parameter {}
-
-explore: pdt1 {}
 
 explore: events {
   join: users {
@@ -93,7 +90,7 @@ explore: order_items {
     sql_on: ${users.id} = ${test_derived_user_cohort.user_id} ;;
   }
 
-  join: order_items_ndt {
+  join: users_ndt {
     relationship: one_to_one
     type: left_outer
     sql_on: 1=1 ;;
@@ -175,8 +172,4 @@ map_layer: chapter_01 {
   file: "2019_SVNJB_Chapter_Boundaries.topojson"
 }
 
-explore: renaming_view_20190508 {}
-
-explore: zozo_table_20190509 {}
-
-explore: zozo_table_null {}
+# explore: renaming_view_20190508 {}

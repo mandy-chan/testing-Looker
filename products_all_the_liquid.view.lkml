@@ -1,5 +1,7 @@
+# using user attributes for dynamic schema and table name injection
+
 view: products_all_the_liquid {
-  sql_table_name: demo_db.products ;;
+  sql_table_name: demo_db.{{ _user_attributes['custom_table'] }} ;;
 
   dimension: id {
     primary_key: yes
@@ -33,7 +35,6 @@ view: products_all_the_liquid {
 
   parameter: single_highlight_filter {
     suggest_dimension: category
-
   }
 
   dimension: single_highlight_if {

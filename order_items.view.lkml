@@ -28,6 +28,12 @@ view: order_items {
     sql: ${TABLE}.returned_at ;;
   }
 
+  dimension: duration_formatted {
+    type: number
+    sql: 100/86400 ;;
+    value_format: "m:ss"
+  }
+
   dimension_group: returned_fiscal {
     type: time
     timeframes: [fiscal_quarter, fiscal_quarter_of_year, fiscal_year]
@@ -37,6 +43,12 @@ view: order_items {
   measure: monthly_sales_price {
     type: sum
     sql: (${TABLE}.sale_price) ;;
+    html: {% if value > users.percent_of_age %}
+      <p style="color: black; background-color: red; font-size:100%; text-align:center">{{ rendered_value }}</p>
+      {% else %}
+      <p style="color: black; background-color: orange; font-size:100%; text-align:center">{{ rendered_value }}</p>
+    {% endif %} ;;
+
   }
 
   measure: monthly_avg_per_day {

@@ -1,14 +1,14 @@
 view: users_datestart_dateend {
-  sql_table_name:
-  {% if testdb._parameter_value == 'demo_db.users' %}
-    demo_db.users
-  {% elsif testdb._parameter_value == 'demo_db.orders' %}
-    demo_db.orders
-  {% elsif testdb._is_filtered %}
-    1=1
-  {% else %}
-    "chili"
-  {% endif %} ;;
+  sql_table_name: demo_db.users ;;
+  # {% if testdb._parameter_value == 'demo_db.users' %}
+  #   demo_db.users
+  # {% elsif testdb._parameter_value == 'demo_db.orders' %}
+  #   demo_db.orders
+  # {% elsif testdb._is_filtered %}
+  #   1=1
+  # {% else %}
+  #   "chili"
+  # {% endif %} ;;
 
 parameter: testdb {
     type: unquoted
@@ -16,6 +16,30 @@ parameter: testdb {
     allowed_value: { label: "orders" value: "demo_db.orders" }
     allowed_value: { label: "products" value: "demo_db.products" }
   }
+
+parameter: testparam_1 {
+    type: date
+  }
+
+parameter: testparam_2 {
+  type: date
+  }
+
+dimension: monthly {
+  type: yesno
+  sql: month(${date_to_check}) = month( {% parameter testparam_1 %} ) AND year(${date_to_check}) = year( {% parameter testparam_1 %} )
+    ;;
+  }
+
+dimension: fiscal {
+  type: yesno
+  sql: DATE('2019-01-01') <= ${date_to_check} AND month(${date_to_check}) <= month({% parameter testparam_2 %}) AND year(${date_to_check}) = year( {% parameter testparam_2 %} );;
+  }
+
+dimension: date_to_check {
+  type: date
+  sql: ${TABLE}.created_at ;;
+}
 
   dimension: id {
     primary_key: yes
@@ -32,6 +56,11 @@ parameter: testdb {
     type: time
     timeframes: []
     sql: ${TABLE}.created_at ;;
+  }
+
+  filter: 12_months {
+    type: date
+    sql: ${created_date} > {% date_start date_filter %} AND ${created_date} < DATE_ADD({% date_end date_filter %}, INTERVAL 12 MONTH) ;;
   }
 
 

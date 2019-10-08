@@ -1,9 +1,16 @@
+include: "zozo_table_20190507.view"
+
 view: renaming_view_20190508 {
   sql_table_name: demo_db.zozo_table_20190508 ;;
 
   dimension: users_count {
     type: number
     sql: ${TABLE}.`users.count` ;;
+  }
+
+  dimension: includes_test {
+    type: string
+    sql: ${zozo_table_20190507.zozo_unique}  ;;
   }
 
   dimension_group: users_created {

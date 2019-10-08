@@ -1,6 +1,11 @@
 view: zozo_table_20190507 {
   sql_table_name: demo_db.zozo_table_20190507 ;;
 
+
+  dimension: zozo_unique {
+    type: string
+    sql: "I don't know" ;;
+  }
   dimension: users_count {
     type: number
     sql: ${TABLE}.`users.count` ;;
