@@ -1,13 +1,13 @@
 connection: "thelook"
-
+#
 # include all the views
 include: "*.view"
 include: "*.dashboard"
 include: "extends_for_explores.explore.lkml"
 
 datagroup: looker_project_default_datagroup {
-  # sql_trigger: SELECT MAX(id) FROM etl_log;;
   max_cache_age: "4 hour"
+  sql_trigger: SELECT FLOOR(UNIX_TIMESTAMP() / (0.83*60*60))  ;;
 }
 
 persist_with: looker_project_default_datagroup
@@ -15,6 +15,30 @@ persist_with: looker_project_default_datagroup
 access_grant: access_grants_1 {
   allowed_values: ["white"]
   user_attribute: color
+}
+
+explore: derived_table_10k {
+  persist_with: looker_project_default_datagroup
+}
+
+explore: extension_hidden {
+  extension: required
+  view_name: any_name_that_i_want
+  join: products {
+    sql_on: ${products.id} = ${any_name_that_i_want.id} ;;
+    type: left_outer
+    relationship: one_to_one
+  }
+}
+
+explore: order_items_3 {
+  extends: [extension_hidden]
+  from: orders
+  join: users {
+    sql_on: ${users.id} = ${any_name_that_i_want.id} ;;
+    relationship: one_to_one
+  }
+
 }
 
 explore: users_datestart_dateend {}
@@ -34,7 +58,9 @@ explore: order_items_with_dt {
   }
 
 }
-explore: derived_table {}
+explore: derived_table {
+  persist_with: looker_project_default_datagroup
+}
 
 explore: always_filter_workaround {}
 
@@ -125,7 +151,16 @@ explore: products_all_the_liquid {
 
 }
 
-explore: order_items_parameter {}
+explore: order_items_parameter {
+  sql_always_where:
+  {% if order_items_parameter.date_filter._is_filtered %}
+--  ${order_items_parameter.returned_month}
+  {% condition order_items_parameter.date_filter %} ${order_items_parameter.returned_date} {% endcondition %}
+  {% else %}
+  ${order_items_parameter.returned_date} = (SELECT max(returned_at) FROM demo_db.order_items)
+  {% endif %}
+  ;;
+}
 
 explore: dt_with_templated_filters {}
 

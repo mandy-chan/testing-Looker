@@ -21,6 +21,31 @@ view: order_items_parameter {
     sql: ${TABLE}.returned_at ;;
   }
 
+  parameter: sale_price_metric_picker {
+    description: "Use with the Sale Price Metric measure"
+    type: unquoted
+    allowed_value: {
+      label: "Total Sale Price"
+      value: "SUM"
+    }
+    allowed_value: {
+      label: "Average Sale Price"
+      value: "AVG"
+    }
+    allowed_value: {
+      label: "Maximum Sale Price"
+      value: "MAX"
+    }
+    allowed_value: {
+      label: "Minimum Sale Price"
+      value: "MIN"
+    }
+  }
+
+  measure: sale_price_metric {
+    type: number
+    sql: {% parameter sale_price_metric_picker %}(${sale_price}) ;;
+  }
 
   parameter: date_type {
     type: string
@@ -38,8 +63,28 @@ view: order_items_parameter {
     }
   }
 
+  filter: date_filter {
+    type:  date
+    required_fields: [returned_date]
+  }
+
   parameter: end_user_date {
     type: date
+    }
+
+  dimension: beginning_date_to_this_date {
+    type: string
+    sql:
+    CASE WHEN
+    ${returned_date} BETWEEN CAST('2017-01-01' AS DATE) AND LAST_DAY(DATE_SUB( {{ end_user_date._parameter_value }}, INTERVAL 1 MONTH))
+    THEN "Yes"
+    ELSE "No"
+    END ;;
+    }
+
+  dimension: last_day_logic {
+    type: string
+    sql: LAST_DAY(DATE_SUB( {{ end_user_date._parameter_value }}, INTERVAL 1 MONTH)) ;;
   }
 
   dimension: lastmonth_or_thismonth {
@@ -84,36 +129,11 @@ view: order_items_parameter {
     END ;;
   }
 
-
-
-
-
-  #   CASE WHEN
-  #   EXTRACT(MONTH FROM ${returned_raw}) = EXTRACT(MONTH FROM {% parameter s_mtd %}) and
-  #   EXTRACT(DAY FROM {% parameter s_mtd %}) = 1 THEN
-  #   DATE_SUB(${returned_raw}, INTERVAL 1 MONTH)
-  #   ELSE ${returned_raw}
-  #   END ;;
-  # }
-
-#   dimension: settlement_is_mtd {
-#     type: yesno
-#     sql:
-#       ;;
-#   }
-
-  # month = month of parameter
-  # day of parameter != 1, return data from current month
-  # else return data from last month
-
-  # < EXTRACT(MONTH FROM {% parameter s_mtd %})
-
-
   dimension: filter_at_date {
     sql:
     {% if date_type._parameter_value == "'day'" %}
     ${returned_date}
-    {% elsif date_type._parameter_value == 'month' %}
+    {% elsif date_type._parameter_value == "'month'" %}
     ${returned_month}
     {% elsif date_type._parameter_value == '' %}
     ${returned_date}

@@ -4,6 +4,8 @@ view: derived_table{
     SELECT
       order_items.id as id,
       orders.status AS status,
+      CASE WHEN order_items.sale_price IS NOT NULL THEN SUM(order_items.sale_price)
+      ELSE NULL END AS net_revenue,
       COUNT(*) AS count
 
 
@@ -29,6 +31,10 @@ view: derived_table{
     hidden: yes
     sql: ${TABLE}.id ;;
 }
+
+  dimension: net_revenue {
+    sql: ${TABLE}.net_revenue + 1;;
+  }
 
   dimension: status {
     sql: ${TABLE}.status;;

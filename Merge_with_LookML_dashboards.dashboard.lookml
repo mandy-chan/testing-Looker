@@ -11,7 +11,7 @@
     pivots: [users.age_tier]
     fill_fields: [users.age_tier]
     sorts: [user_data.count desc 0, users.age_tier]
-    limit: 500
+    limit: 10000
     series_types: {}
     row: 0
     col: 0
@@ -25,7 +25,7 @@
       type: table
       fields: [order_items.discounted_sale_price, order_items.count, users.age]
       sorts: [order_items.discounted_sale_price]
-      limit: 500
+      limit: 10000
       query_timezone: America/Los_Angeles
     - model: looker_project
       explore: order_items

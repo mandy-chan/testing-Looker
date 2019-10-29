@@ -43,13 +43,18 @@ view: order_items {
   measure: monthly_sales_price {
     type: sum
     sql: (${TABLE}.sale_price) ;;
-    html: {% if value > users.percent_of_age %}
-      <p style="color: black; background-color: red; font-size:100%; text-align:center">{{ rendered_value }}</p>
-      {% else %}
-      <p style="color: black; background-color: orange; font-size:100%; text-align:center">{{ rendered_value }}</p>
-    {% endif %} ;;
+    html:
+    <a href="#drillmenu" target="_self">
+       {% if value > users.percent_of_age %}
 
+      {{ rendered_value }}
+      {% else %}
+      {{ rendered_value }}
+    {% endif %}</a> ;;
   }
+
+
+
 
   measure: monthly_avg_per_day {
     type: sum
@@ -107,31 +112,31 @@ view: order_items {
     convert_tz: no
   }
 
-  parameter: sale_price_metric_picker {
-    description: "Use with the Sale Price Metric measure"
-    type: unquoted
-    allowed_value: {
-      label: "Total Sale Price"
-      value: "SUM"
-    }
-    allowed_value: {
-      label: "Average Sale Price"
-      value: "AVG"
-    }
-    allowed_value: {
-      label: "Maximum Sale Price"
-      value: "MAX"
-    }
-    allowed_value: {
-      label: "Minimum Sale Price"
-      value: "MIN"
-    }
-  }
+  # parameter: sale_price_metric_picker {
+  #   description: "Use with the Sale Price Metric measure"
+  #   type: unquoted
+  #   allowed_value: {
+  #     label: "Total Sale Price"
+  #     value: "SUM"
+  #   }
+  #   allowed_value: {
+  #     label: "Average Sale Price"
+  #     value: "AVG"
+  #   }
+  #   allowed_value: {
+  #     label: "Maximum Sale Price"
+  #     value: "MAX"
+  #   }
+  #   allowed_value: {
+  #     label: "Minimum Sale Price"
+  #     value: "MIN"
+  #   }
+  # }
 
-  measure: sale_price_metric {
-    type: number
-    sql: {% parameter sale_price_metric_picker %}(${sale_price}) ;;
-  }
+  # measure: sale_price_metric {
+  #   type: number
+  #   sql: {% parameter sale_price_metric_picker %}(${sale_price}) ;;
+  # }
 
   dimension: hash {
     type: string
@@ -145,6 +150,22 @@ view: order_items {
     sql: ${TABLE}.sale_price*10000000 ;;
     value_format: "0"
   }
+
+  filter: yesno_filter {
+    type: string
+    sql: {% condition yesno_filter %} ${sale_price} {% endcondition %}  ;;
+  }
+
+  dimension: tiering {
+    type: number
+    sql:  ${TABLE}.sale_price ;;
+    html: {% if value < 1 %}
+          <p style="color: black">LESS THAN 1</p>
+          {% elsif value > 1 %}
+          <p style="color: black">GREATER THAN 1</p>
+          {% endif %} ;;
+  }
+
 
   dimension: sale_price {
     type: number
