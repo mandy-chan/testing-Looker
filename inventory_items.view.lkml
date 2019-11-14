@@ -65,4 +65,9 @@ view: inventory_items {
     type:  date
     sql: MAX(${created_raw}) ;;
   }
+
+  filter: testing_out_with_fields {
+    type: string
+    sql: ${TABLE}.date ;;
+  }
 }

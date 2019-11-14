@@ -70,7 +70,7 @@ view: orders {
     drill_fields: [id, users.id, users.first_name, users.last_name, order_items.count]
     filters: {
       field: is_order_paid
-      value: "yes"
+      value: "-NULL"
     }
   }
 

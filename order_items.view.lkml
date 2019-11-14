@@ -12,7 +12,6 @@ view: order_items {
   dimension: inventory_item_id {
     type: number
     # hidden: yes
-    sql: ${TABLE}.inventory_item_id ;;
   }
 
   dimension: order_id {
@@ -24,8 +23,13 @@ view: order_items {
 
   dimension_group: returned {
     type: time
-    timeframes: []
+    timeframes: [ week, month ]
     sql: ${TABLE}.returned_at ;;
+  }
+
+  dimension: is_it_max_returned_week {
+    type: yesno
+    sql: ${returned_week} = ${derived_table.max_returned_week};;
   }
 
   dimension: duration_formatted {

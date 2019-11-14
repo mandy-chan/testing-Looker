@@ -58,9 +58,24 @@ explore: order_items_with_dt {
   }
 
 }
-explore: derived_table {
-  persist_with: looker_project_default_datagroup
-}
+# explore: order_items_derived_table {
+#   view_name: order_items
+#
+#   conditionally_filter: {
+#     filters: {
+#       field: order_items.id
+#       value: "> 40"
+#     }
+#
+#     unless: [order_items.yesno_filter]
+#   }
+#
+#   join: derived_table {
+#     type: left_outer
+#     sql_on: ${order_items.id} = ${derived_table.id} ;;
+#     relationship: one_to_one
+#   }
+# }
 
 explore: always_filter_workaround {}
 
@@ -85,7 +100,9 @@ explore: inventory_items {
 }
 
 explore: order_items {
+  group_label: "order_items"
   join: orders {
+    view_label: "orders"
     type: left_outer
     sql_on: ${order_items.id} = ${orders.id} ;;
     relationship: many_to_one
@@ -121,16 +138,24 @@ explore: order_items {
     type: left_outer
     sql_on: 1=1 ;;
   }
+
+  join: derived_table {
+    type: left_outer
+    sql_on: ${order_items.id} = ${derived_table.id} ;;
+    relationship: one_to_one
+  }
 }
 
 explore: orders {
+  conditionally_filter: {}
   join: users {
     type: left_outer
     sql_on: ${orders.user_id} = ${users.id} ;;
     relationship: many_to_one
   }
-
 }
+
+
 
 explore: users_cohort {
   from: users
@@ -177,7 +202,7 @@ explore: users_with_access_filter {
   access_filter: {
     field: users.city
     user_attribute: city
-    }
+  }
 }
 
 explore: users_with_access_grants {
@@ -199,6 +224,8 @@ explore: zozo_table_20190507 {
     }
   }
 }
+
+explore: users_ndt {}
 
 map_layer: chapter_01 {
   feature_key: "2019_SVNJB_Chapter_Boundaries"

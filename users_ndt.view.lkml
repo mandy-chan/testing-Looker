@@ -5,19 +5,20 @@ include: "extends_for_explores.explore.lkml"
 
 view: users_ndt {
   derived_table: {
-    explore_source: order_items {
-      column: created_month { field: users.created_month }
-      column: count { field: users.count }
-      column: gender { field: users.gender }
-      bind_filters: {
-        to_field: products.category
-        from_field: products.category
-      }
+    explore_source: zozo_table_20190507 {
+      column: does_view_work { field: zozo_table_20190507.zozo_unique}
+      # column: created_month { field: users.created_month }
+      # column: count { field: users.count }
+      # column: gender { field: users.gender }
+      # bind_filters: {
+      #   to_field: products.category
+      #   from_field: products.category
+      # }
 
-      bind_filters: {
-        to_field: users.city
-        from_field: users.country
-      }
+      # bind_filters: {
+      #   to_field: users.city
+      #   from_field: users.country
+      # }
     }
   }
   dimension: created_month {

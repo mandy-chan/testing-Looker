@@ -10,36 +10,46 @@ view: users_datestart_dateend {
   #   "chili"
   # {% endif %} ;;
 
-parameter: testdb {
+  parameter: testdb {
     type: unquoted
     allowed_value: { label: "users" value: "demo_db.users" }
     allowed_value: { label: "orders" value: "demo_db.orders" }
     allowed_value: { label: "products" value: "demo_db.products" }
   }
 
-parameter: testparam_1 {
+  filter: enddate_match_filter {
     type: date
   }
 
-parameter: testparam_2 {
-  type: date
+
+  dimension: enddate_match {
+    type: yesno
+    sql:  ${created_date} = {% date_end created_date %}  ;;
   }
 
-dimension: monthly {
-  type: yesno
-  sql: month(${date_to_check}) = month( {% parameter testparam_1 %} ) AND year(${date_to_check}) = year( {% parameter testparam_1 %} )
-    ;;
+  parameter: testparam_1 {
+    type: date
   }
 
-dimension: fiscal {
-  type: yesno
-  sql: DATE('2019-01-01') <= ${date_to_check} AND month(${date_to_check}) <= month({% parameter testparam_2 %}) AND year(${date_to_check}) = year( {% parameter testparam_2 %} );;
+  parameter: testparam_2 {
+    type: date
   }
 
-dimension: date_to_check {
-  type: date
-  sql: ${TABLE}.created_at ;;
-}
+  dimension: date_to_check {
+    type: date
+    sql: ${TABLE}.created_at ;;
+  }
+
+  dimension: monthly {
+    type: yesno
+    sql: month(${date_to_check}) = month( {% parameter testparam_1 %} ) AND year(${date_to_check}) = year( {% parameter testparam_1 %} )
+      ;;
+  }
+
+  dimension: fiscal {
+    type: yesno
+    sql: DATE('2019-01-01') <= ${date_to_check} AND month(${date_to_check}) <= month({% parameter testparam_2 %}) AND year(${date_to_check}) = year( {% parameter testparam_2 %} );;
+  }
 
   dimension: id {
     primary_key: yes
@@ -104,16 +114,25 @@ dimension: date_to_check {
     suggestions: ["period","previous period"]
     type: string
     case:  {
-    when:  {
-      sql: ${created_date} BETWEEN ${filter_start_date_raw} AND  ${filter_end_date_raw};;
-      label: "Period"
+      when:  {
+        sql: ${created_date} BETWEEN ${filter_start_date_raw} AND  ${filter_end_date_raw};;
+        label: "Period"
+      }
+      when: {
+        sql: ${created_date} BETWEEN ${previous_start_date} AND ${filter_start_date_raw} ;;
+        label: "Previous Period"
+      }
+      else: "Not in time period"
     }
-    when: {
-      sql: ${created_date} BETWEEN ${previous_start_date} AND ${filter_start_date_raw} ;;
-      label: "Previous Period"
-    }
-    else: "Not in time period"
   }
+
+  filter: date_filter_name {
+    type: date
+  }
+
+  dimension: datestart_dateend {
+    type: yesno
+    sql: DATE_ADD({% date_start date_filter_name %}, INTERVAL -35 week) < ${created_date} AND ${created_date} < DATE_ADD({% date_end date_filter_name %}, INTERVAL -6 week)  ;;
   }
 
 # https://discourse.looker.com/t/analytic-block-dynamic-previous-period-analysis-using-date-start-date-end/5361

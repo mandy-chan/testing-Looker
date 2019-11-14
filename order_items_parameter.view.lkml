@@ -68,6 +68,29 @@ view: order_items_parameter {
     required_fields: [returned_date]
   }
 
+  filter: dynamic_filtered_measure_filter {
+    type: number
+    suggest_dimension: sale_price
+  }
+
+  dimension: dynamic_filtered_measure_dimension {
+    type: yesno
+    sql: {% condition dynamic_filtered_measure_filter %} ${sale_price} {% endcondition %}  ;;
+  }
+
+  measure: dynamic_filtered_measure_measure {
+    type: count
+    filters: {
+      field: dynamic_filtered_measure_dimension
+      value: "Yes"
+    }
+  }
+
+  measure: count_yes_id {
+    type: count_distinct
+    sql: CASE WHEN {% condition date_filter %} ${returned_date} {% endcondition %} THEN ${id} ELSE NULL END  ;;
+  }
+
   parameter: end_user_date {
     type: date
     }

@@ -23,6 +23,10 @@ view: users {
       field: age
       value: "> 21"
     }
+    filters: {
+      field: first_name
+      value: "John"
+    }
   }
 
   measure: percentage_over_21 {
@@ -40,7 +44,7 @@ view: users {
 
   dimension: city {
     type: string
-    sql: ${TABLE}.city ;;
+    sql: CONCAT(${TABLE}.city, '-', CAST(${country} AS CHAR)) ;;
   }
 
   dimension: country {

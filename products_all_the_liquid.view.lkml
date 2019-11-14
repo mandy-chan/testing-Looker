@@ -100,13 +100,14 @@ view: products_all_the_liquid {
     type: string
     sql: ${TABLE}.category ;;
     link: {
-      label: "Google Search"
-      url: "https://www.google.com"
+      label: "Drill Explore"
+      url:"/explore/model_name/ecommerce?fields=users.id,users.name&f[users.state]={{ _filters['users.state'] | url_encode }}"
     }
+    drill_fields: [category_count, category_with_link]
   }
 
   dimension: linking_with_link_parameter_liquid {
-    type: string
+    # type: string
     sql: ${TABLE}.category ;;
     link: {
       label: "Google Search - {{value}}"
