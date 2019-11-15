@@ -1,5 +1,5 @@
 connection: "thelook"
-#
+######
 # include all the views
 include: "*.view"
 include: "*.dashboard"
@@ -100,7 +100,7 @@ explore: inventory_items {
 }
 
 explore: order_items {
-  group_label: "order_items"
+  description: "English or French?"
   join: orders {
     view_label: "orders"
     type: left_outer
