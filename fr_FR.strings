@@ -18,3 +18,4 @@
 // set its locale code ("en") as the default_locale in the manifest file.
 "Orders" = "ordres";
 "Order Items" = "Items commandés";
+"English or French?" = "Anglais or Français";
