@@ -7,9 +7,16 @@ view: users {
     sql: ${TABLE}.id ;;
   }
 
+  filter: date_range {
+    type: date
+    sql: {% condition date_range %} ${users.created_date} {% endcondition %};;
+
+  }
+
   dimension: age {
     type: number
     sql: ${TABLE}.age ;;
+    drill_fields: [id]
   }
 
   measure: percent_of_age {
@@ -44,7 +51,10 @@ view: users {
 
   dimension: city {
     type: string
-    sql: CONCAT(${TABLE}.city, '-', CAST(${country} AS CHAR)) ;;
+    sql: ${TABLE}.city ;;
+    suggest_dimension: orders.status
+    full_suggestions: no
+    bypass_suggest_restrictions: yes
   }
 
   dimension: country {
@@ -53,9 +63,9 @@ view: users {
     sql: ${TABLE}.country ;;
   }
 
-  dimension: nownow {
-    type: date
-    sql: now();;
+  dimension_group: now {
+    type: time
+    sql: date_add('hours', -8, current_date);;
   }
 
   dimension: created_atdate {
@@ -67,21 +77,9 @@ view: users {
   dimension_group: created {
     type: time
     timeframes: [
-      raw,
-      time,
-      date,
-      week,
-      month,
-      quarter,
-      year
+
     ]
     sql: ${TABLE}.created_at ;;
-    html:
-      {% if rendered_value == users.nownow._rendered_value %}
-      <div style=" background-color: #d36b6b">{{ rendered_value }}</div>
-      {% else %}
-      <div style=" background-color: #dddddd">{{ rendered_value }}</div>
-      {% endif %};;
   }
 
   dimension: email {
@@ -140,9 +138,15 @@ view: users {
     sql: ${TABLE}.state ;;
   }
 
+
+  dimension: state_case_when {
+    type: string
+    sql: CASE WHEN ${TABLE}.state != 'California' THEN 'California' ELSE NULL END;;
+  }
+
   dimension: zip {
     type: zipcode
-    sql: ${TABLE}.zip ;;
+    sql: CAST(${TABLE}.zip AS CHAR) ;;
   }
 
   measure: count {

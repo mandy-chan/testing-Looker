@@ -21,11 +21,40 @@ view: users_datestart_dateend {
     type: date
   }
 
-
-  dimension: enddate_match {
-    type: yesno
-    sql:  ${created_date} = {% date_end created_date %}  ;;
+  filter: date_range {
+    type: date
   }
+
+  dimension: for_tile_A {
+    type: yesno
+    sql: {% condition date_range %} ${created_date} {% endcondition %} ;;
+  }
+
+  dimension: for_tile_B {
+    type: yesno
+    sql:  ${created_date} = DATE_SUB({% date_end date_range %}, INTERVAL 365 DAY)  ;;
+  }
+
+  filter: date_range_test {
+    type: date
+    sql: {% condition date_range_test %} ${created_date} {% endcondition %} ;;
+  }
+
+  dimension: for_tile_B_test {
+    type: yesno
+    sql:  ${created_date} <= {% date_end date_range_test %} ;;
+  }
+
+
+  dimension: enddate_date_range {
+    type: date
+    sql: ${created_date} = {% date_end date_range %}  ;;
+  }
+
+
+
+
+
 
   parameter: testparam_1 {
     type: date

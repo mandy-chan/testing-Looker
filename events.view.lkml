@@ -1,3 +1,4 @@
+
 view: events {
   sql_table_name: demo_db.events ;;
 
@@ -6,6 +7,11 @@ view: events {
     type: number
     sql: ${TABLE}.id ;;
 
+  }
+
+  dimension: constant {
+    type: number
+    sql: CAST('0.01' as decimal) ;;
   }
 
   dimension_group: created {

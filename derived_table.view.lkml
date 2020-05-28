@@ -3,7 +3,11 @@ view: derived_table{
     sql:
     SELECT
       order_items.id as id,
-      order_items.returned_at as returned_at
+      order_items.returned_at as returned_at,
+      products.brand as brand,
+
+
+      AVG(products.retail_price) as avg_retail_price
 
 --      DATE(MAX((DATE_FORMAT(TIMESTAMP(DATE(DATE_ADD(order_items.returned_at ,INTERVAL (0 - MOD((DAYOFWEEK(order_items.returned_at ) - 1) - 1 + 7, 7)) day))), '%Y-%m-%d'))) ) AS max_returned_week
 --      CASE WHEN order_items.sale_price IS NOT NULL THEN SUM(order_items.sale_price)
@@ -16,23 +20,46 @@ view: derived_table{
      LEFT JOIN demo_db.inventory_items AS inventory_items ON order_items.inventory_item_id = inventory_items.id
      LEFT JOIN demo_db.products AS products ON inventory_items.product_id = products.id
 
---    WHERE {% condition date_filter %} order_items.returned_at {% endcondition %}
-    GROUP BY 1 ;;
+WHERE
+{% if derived_table.brand_filter._is_filtered %}
+{% if derived_table.order_filter._is_filtered %}
+
+     {% condition derived_table.brand_filter %} products.brand {% endcondition %}
+         or
+     {% condition derived_table.order_filter %} order_items.id {% endcondition %}
+  {% else %}
+     {% condition derived_table.brand_filter %} products.brand {% endcondition %}
+{% endif %}
+{% elsif derived_table.order_filter._is_filtered %}
+   {% condition derived_table.order_filter %} order_items.id {% endcondition %}
+{% else %}
+{% endif %}
+
+    GROUP BY 1,2,3 ;;
   indexes: ["id"]
   }
 
-  filter: date_filter {
-    type:  date
+  filter: brand_filter {
+    type:  string
   }
 
-  dimension: stringstring {
+  filter: order_filter {
+    type: number
+
+  }
+
+  dimension: brand {
     type: string
-    sql: "stringstring" ;;
+    sql: ${TABLE}.brand ;;
+  }
+
+  measure: avg_retail_price {
+    type: sum
+    sql: ${TABLE}.avg_retail_price ;;
   }
 
   dimension: id {
     primary_key: yes
-    hidden: yes
     sql: ${TABLE}.id ;;
 }
 
@@ -52,13 +79,8 @@ view: derived_table{
     sql: CASE WHEN {% condition date_filter %} ${returned_date} {% endcondition %} THEN ${id} ELSE NULL END  ;;
   }
 
-  measure: count {
-    type: count
-    filters: {
-      field: returned_date
-      value: "-NULL"
-    }
-  }
+  filter: date_filter {}
+
 
 #   dimension: net_revenue {
 #     sql: ${TABLE}.net_revenue + 1;;

@@ -21,3 +21,9 @@
       col: 0
       width: 8
       height: 6
+    - name: Does HTML work
+      type: text
+      title_text: title text
+      font_size: large
+      subtitle_text: subtitle text
+      body_text: body text

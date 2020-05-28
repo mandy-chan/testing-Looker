@@ -1,3 +1,4 @@
+
 view: pdt2 {
 
   derived_table: {
@@ -9,8 +10,12 @@ view: pdt2 {
 
   }
 
+
   dimension: user_id {
-    type: number
-    sql: ${TABLE}.user_id ;;
+    link: {
+      label: ""
+    }
   }
+
+
 }

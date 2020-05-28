@@ -1,4 +1,3 @@
-include: "*.view"
 
 view: order_items {
   sql_table_name: demo_db.order_items ;;
@@ -9,13 +8,41 @@ view: order_items {
     sql: ${TABLE}.id ;;
   }
 
+  parameter: 2_or_5_sec {
+    allowed_value: {
+      label: "2 seconds"
+      value: "2"
+    }
+    allowed_value: {
+      label: "5 seconds"
+      value: "5"
+    }
+    default_value: "30"
+  }
+
+  parameter: parameter_date {
+    allowed_value: {
+      label: "2019"
+      value: "2019"
+    }
+  }
+
+  dimension: abandonment_rate {
+    sql: {% parameter 2_or_5_sec %}/ 100 ;;
+  }
+
+
   dimension: inventory_item_id {
     type: number
     # hidden: yes
+    link: {
+      label: "is this working"
+      url: "google.com"
+    }
+    required_access_grants: [access_grants_1]
   }
 
   dimension: order_id {
-    label: "{{ _view._name }} Name"
     type: number
     sql: ${TABLE}.order_id ;;
     value_format_name: decimal_0
@@ -23,8 +50,14 @@ view: order_items {
 
   dimension_group: returned {
     type: time
-    timeframes: [ week, month ]
+    datatype: datetime
+    timeframes: [ ]
     sql: ${TABLE}.returned_at ;;
+  }
+
+  filter: returned_filter {
+    type: date
+    sql: {% condition returned_filter %} ${returned_year} {% endcondition %} - DATE_SUB("2017-06-15", INTERVAL 2 YEARS); ;;
   }
 
   dimension: is_it_max_returned_week {
@@ -170,6 +203,42 @@ view: order_items {
           {% endif %} ;;
   }
 
+  parameter: timeframe_picker {
+    label: "Date Granularity"
+    type: string
+    allowed_value: { value: "YTD" }
+    allowed_value: { value: "MTD" }
+    default_value: "YTD"
+  }
+
+  dimension: is_YTD_day {
+    group_label: "Days in MTD, QTD and YTD (excludes today)"
+    label: "Is in YTD Dates (excludes today)"
+    type: yesno
+    sql:
+      ${TABLE}.returned_at between CAST(DATE_ADD(CURDATE(), INTERVAL -12 MONTH) AS DATE) and CAST(CURDATE() AS DATE)
+      ;;
+  }
+
+  dimension: is_MTD_day {
+    group_label: "Days in MTD, QTD and YTD (excludes today)"
+    label: "Is in MTD Dates (excludes today)"
+    type: yesno
+    sql: ${TABLE}.returned_at between DATE_FORMAT(NOW() ,'%Y-%M-01') AND NOW() ;;
+  }
+
+  dimension: dynamic_timeframe {
+    type: string
+    sql:
+      CASE
+      WHEN {% parameter timeframe_picker %} = 'YTD' AND ${is_YTD_day}='Yes' THEN 'No'
+      WHEN {% parameter timeframe_picker %} = 'MTD' AND ${is_MTD_day}='Yes' THEN 'No'
+
+      END ;;
+  }
+
+  # WHEN {% parameter timeframe_picker %} = 'QTD' THEN ${is_QTD_day_wtoday}='Yes'
+  # WHEN{% parameter timeframe_picker %} = 'MTD' THEN ${is_MTD_day_wtoday}='Yes'
 
   dimension: sale_price {
     type: number
@@ -194,6 +263,7 @@ view: order_items {
   measure: total_sale_price {
     type: sum
     sql: ${sale_price} ;;
+    html: {{ abandonment_rate._rendered_value }} || {{ rendered_value }} || {{ largest_order._rendered_value }} ;;
   }
 
   measure: percent_of_total {
@@ -210,7 +280,8 @@ view: order_items {
   measure: formatting {
     type: number
     sql:coalesce(1.0*${total_sale_price}/NULLIF(${order_id},0),0) ;;
-    value_format_name: usd
+    value_format: "0\%"
+
   }
 
   measure: division {
@@ -225,7 +296,6 @@ view: order_items {
     {% endif %} ;;
   }
 
-
   measure: count {
     type: count
     link: {
@@ -239,10 +309,7 @@ view: order_items {
 
   measure: showing_all {
     type: count
-    link: {
-      label: "showing all"
-      url: "{{count._link}}"
-    }
+    filters: [ returned_date: "-null"]
   }
 
   measure: count_with_filter {
@@ -253,7 +320,7 @@ view: order_items {
 
   measure: cumulative_sale_price {
     type: running_total
-    direction: "column"
+    sql_distinct_key: ${orders.status} ;;
     sql: ${sum_of_sale_price} ;;
     value_format_name: usd
   }

@@ -1,5 +1,5 @@
 view: users_with_sql_always_filter {
-  sql_table_name: demo_db.usersNN ;;
+  sql_table_name: demo_db.users ;;
 
   dimension: id {
     primary_key: yes
@@ -15,6 +15,10 @@ view: users_with_sql_always_filter {
   dimension: last_name {
     type: string
     sql: ${TABLE}.last_name ;;
+  }
+
+  dimension: city {
+    sql: ${TABLE}.city ;;
   }
 
   measure: count {

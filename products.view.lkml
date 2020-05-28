@@ -55,6 +55,7 @@ view: products {
   measure: count {
     type: count
     drill_fields: [id, item_name, inventory_items.count]
+    html: <font size="18px">{{value}}</font> ;;
   }
 
 
@@ -62,6 +63,17 @@ view: products {
     type: average
     sql: ${retail_price} ;;
     value_format_name: usd
+  }
+
+  measure: item_name_measure {
+  type: string
+  sql: max(${TABLE}.item_name);;
+  }
+
+  dimension: title {
+    type: string
+    sql: ${brand} ;;
+    html: <h1>Sales on {{ rendered_value }} </h1> ;;
   }
 
 }

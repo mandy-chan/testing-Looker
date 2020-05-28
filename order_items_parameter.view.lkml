@@ -18,8 +18,37 @@ view: order_items_parameter {
       quarter,
       year
     ]
-    sql: ${TABLE}.returned_at ;;
+    sql: ${TABLE}.returned_at;;
   }
+
+  parameter: date_granularity {
+    type: unquoted
+    default_value: "Testing_this_out"
+    allowed_value: { value: "Day" }
+    allowed_value: { value: "Week" }
+    allowed_value: { value: "Month" }
+    allowed_value: { value: "Quarter" }
+    allowed_value: { value: "Year" }
+  }
+
+  dimension: invoice_created_at_filter {
+    sql:
+    {% if date_granularity._parameter_value == 'Day' %}
+    ${returned_date}
+    {% endif %};;
+  }
+
+ dimension: batch_categories_dynamic_same_store {
+  type: string
+  sql:{% if order_items_parameter.date_granularity._parameter_value == 'Day' %}
+      ${returned_date}
+      {% elsif order_items_parameter.date_granularity._parameter_value == 'Week' %}
+      ${returned_week}
+      {% else %}
+      null
+      {% endif %} ;;
+}
+
 
   parameter: sale_price_metric_picker {
     description: "Use with the Sale Price Metric measure"
@@ -46,6 +75,42 @@ view: order_items_parameter {
     type: number
     sql: {% parameter sale_price_metric_picker %}(${sale_price}) ;;
   }
+
+  measure: type_number {
+    type: number
+    sql: ${sale_price} ;;
+    drill_fields: [id]
+    html: <a href="{{ link }}"> {{ sale_price._linked_value }} {{ rendered_value }} </a>;;
+
+  }
+
+  parameter: last_x_days {
+    type: unquoted
+    allowed_value: {
+      label: "7"
+      value: "7"
+    }
+  }
+
+  filter: dynamically_filter {
+    type: number
+  }
+
+#   dimension: preset_list {
+#     sql:
+#     {% if last_x_days._parameter_value == '7' }
+#     ((( ${order_items_parameter.returned_date}) >= ((DATE_ADD(CURDATE(),INTERVAL {% parameter last_x_days %} day))) AND (${order_items_parameter.returned_date}) < ((DATE_ADD(DATE_ADD(CURDATE(),INTERVAL {% parameter last_x_days %} day),INTERVAL {% parameter last_x_days %} day)))))
+#     {% else %}
+#     NULL
+#     {% endif %};;
+#   }
+#
+#   {% if order_items_parameter.date_filter._is_filtered %}
+# --  ${order_items_parameter.returned_month}
+#   {% condition order_items_parameter.date_filter %} ${order_items_parameter.returned_date} {% endcondition %}
+#   {% else %}
+#   ${order_items_parameter.returned_date} = (SELECT max(returned_at) FROM demo_db.order_items)
+#   {% endif %}
 
   parameter: date_type {
     type: string
@@ -152,6 +217,15 @@ view: order_items_parameter {
     END ;;
   }
 
+  dimension: enddate_match {
+    type: yesno
+    sql: {% if order_items_parameter.returned_date._in_query %}
+        ${returned_date} >= DATE_SUB({% date_end returned_date %}, INTERVAL 1 day) AND ${returned_date} < {% date_end returned_date %}
+        {% else %}
+         1=1
+        {% endif %} ;;
+  }
+
   dimension: filter_at_date {
     sql:
     {% if date_type._parameter_value == "'day'" %}
@@ -177,7 +251,7 @@ view: order_items_parameter {
 
   dimension: sale_price {
     type: number
-    sql: ${TABLE}.sale_price ;;
+    sql: ${TABLE};;
   }
 
   dimension: testing_out_value_with_hello {
@@ -210,7 +284,20 @@ view: order_items_parameter {
     }
   }
 
+  measure: count_distinct {
+    type: count_distinct
+    sql: ${sale_price} ;;
+  }
 
+  measure: avg_minutes_per_viewing_subscriber_norm {
+    type: average
+    sql: ${TABLE}.sale_price/(${TABLE}.sale_price * 2.0);;
+    label: "Average Minutes per Viewing Subscriber Norm"
+    filters: {
+      field: returned_date
+      value: "13 weeks ago for 13 weeks"
+    }
+  }
 
 
 

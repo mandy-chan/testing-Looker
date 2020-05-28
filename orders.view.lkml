@@ -7,7 +7,30 @@ view: orders {
     sql: ${TABLE}.id ;;
   }
 
+  parameter: aggregation {
+    type: string
+    allowed_value: { value: "Date" }
+    allowed_value: { value: "Week" }
+    allowed_value: { value: "Month" }
+    default_value: "Date"
+  }
+
+  dimension: aggregation_dimension {
+    sql: {% parameter aggregation %}   ;;
+  }
+
+  dimension: dynamic_actual_departure_port_departed_on_utc {
+    type: string
+    sql:
+      CASE
+        WHEN {% parameter aggregation %} = 'Date' THEN ${created_date}
+        WHEN {% parameter aggregation %} = 'Week' THEN ${created_week}
+        WHEN {% parameter aggregation %} = 'Month' THEN ${created_month}
+      END ;;
+}
+
   dimension_group: created {
+    view_label: "Desired Label"
     type: time
     timeframes: [
       raw,
@@ -22,9 +45,25 @@ view: orders {
     sql: ${TABLE}.created_at ;;
   }
 
+  dimension_group: created_again {
+    view_label: "Desired Label"
+    type: time
+    timeframes: [
+      microsecond,
+      fiscal_year
+    ]
+    sql: ${TABLE}.created_at ;;
+  }
+
   dimension: status {
     type: string
     sql: ${TABLE}.status ;;
+  }
+
+  dimension: status_filter {
+    type: string
+    sql: ${status} ;;
+    suggestions: ["pending"]
   }
 
   dimension: is_order_paid {

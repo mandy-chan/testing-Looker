@@ -1,10 +1,19 @@
 view: inventory_items {
-  sql_table_name: demo_db.inventory_items ;;
+  sql_table_name:  demo_db.inventory_items ;;
+
+  parameter: date_filter_start {
+    type: date
+  }
+
+  parameter: date_filter_end {
+    type: date
+  }
 
   dimension: stringstring {
     type: string
     sql: "stringstring" ;;
   }
+
   dimension: id {
     primary_key: yes
     type: number
@@ -21,7 +30,6 @@ view: inventory_items {
     type: time
     timeframes: []
     sql: ${TABLE}.created_at ;;
-    label: "created from 3 days"
   }
 
   dimension_group: time_between_created_and_sold{
@@ -71,3 +79,21 @@ view: inventory_items {
     sql: ${TABLE}.date ;;
   }
 }
+
+#
+#   {% assign datef_start = date_filter_start._parameter_value | date: "%Y-%m-%d" %}
+#   {% assign datef_end = date_filter_end._parameter_value | date: "%Y-%m-%d" %}
+#   {% assign epoch_now = "now" | date: "%s" %}
+#   {% assign current = "now" | date: "%Y-%m-%d" %}
+#   {% assign epoch_now_1_month_ago = epoch_now | minus: 2592000 %}
+#   {% assign 1_month_ago = epoch_now_1_month_ago | date: "%Y-%m-%d" %}
+#   {% if datef_start >= 1_month_ago %}
+#     {% if datef_end <= current %}
+#       {{ epoch_now }}
+#     {% else %}
+#       demo_db.inventory_items
+#     {% endif %}
+#   {% else %}
+#       demo_db.inventory_items
+#   {% endif %}
+#   ;;

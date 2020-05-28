@@ -2,30 +2,56 @@ view: derived_table_test_w_parameter {
   derived_table: {
     sql:
     SELECT
-      {% parameter filter_name %} AS status,
-      returned_at
+     brand,
+     status,
+     category
 
-      FROM demo_db.order_items  AS order_items
-      LEFT JOIN demo_db.orders  AS orders ON order_items.id = orders.id
-      LEFT JOIN demo_db.users  AS users ON orders.user_id = users.id
+     FROM demo_db.order_items AS order_items
+     LEFT JOIN demo_db.orders AS orders ON order_items.id = orders.id
+     LEFT JOIN demo_db.inventory_items AS inventory_items ON order_items.inventory_item_id = inventory_items.id
+     LEFT JOIN demo_db.products AS products ON inventory_items.product_id = products.id
+
+     WHERE
+
+{% if filter_name._parameter_value contains "," %}
+brand="1"
+ {% elsif filter_name._parameter_value contains "Last" %}
+category
+
+{% endif %}
 
 
-      LIMIT 500
-       ;;
+LIMIT 10
+;;
   }
 
+
+    # brand = '{% parameter filter_name %}'
+    # OR status like '"%client_acct_num":"{% parameter filter_name %}"'
+
+
   parameter: filter_name {
-    type: unquoted
+type: unquoted
+   allowed_value: {
+    label: ","
+    value: "^,"
+    }
     allowed_value: {
-      label: "Complete"
-      value: "status" }
-    allowed_value: {
-      label: "Pending"
-      value: "user_id" }
+      label: "Last"
+      value: "Last"
+    }
   }
 
   dimension: status {
     sql: ${TABLE}.status ;;
+  }
+
+  dimension: category {
+    sql: ${TABLE}.category ;;
+  }
+
+  dimension: brand {
+    sql: ${TABLE}.brand ;;
   }
 
   dimension: returned_at {

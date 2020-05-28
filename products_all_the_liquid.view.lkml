@@ -1,7 +1,11 @@
 # using user attributes for dynamic schema and table name injection
 
+include: "inventory_items.view.lkml"
+
 view: products_all_the_liquid {
-  sql_table_name: demo_db.{{ _user_attributes['custom_table'] }} ;;
+
+  sql_table_name:
+      demo_db.products;;
 
   dimension: id {
     primary_key: yes
@@ -13,6 +17,32 @@ view: products_all_the_liquid {
   dimension: brand {
     type: string
     sql: ${TABLE}.brand ;;
+  }
+
+  filter: dynamic_filter {
+    type: string
+  }
+
+  dimension: yesno_dynamic_filter {
+    type: yesno
+    sql: {% condition dynamic_filter %} category {% endcondition %} ;;
+  }
+
+  dimension: yesno_conditional {
+    type: yesno
+    sql: ${TABLE}.brand is not null ;;
+    html:
+       {% if brand._value %}
+       <a href="https://jobadder.com/placements/{{ brand._value }}">{{value}} </a>
+      {% endif %};;
+  }
+
+  measure: dynamic_filter_count {
+    type: count
+    filters: {
+      field: yesno_dynamic_filter
+      value: "yes"
+    }
   }
 
   dimension: brand_with_filterable_value{
@@ -120,7 +150,7 @@ view: products_all_the_liquid {
     sql: ${TABLE}.category ;;
     link: {
       label: "To Category"
-      url: "/dashboards/6?Category={{ value | url_encode }}&Brand={{ _filters['products.brand'] | url_encode }}"
+      url: "/dashboards/6?Category={{ value | url_encode }}&Brand={{ _filters['products_all_the_liquid.brand'] | url_encode }}"
     }
   }
 
@@ -158,5 +188,19 @@ view: products_all_the_liquid {
     WHEN {% parameter filter_3_dimensions %} = '2' THEN ${category_to_google}
     END ;;
   }
+
+  dimension: retail_price {
+    type: number
+    sql: ${TABLE}.retail_price ;;
+    value_format_name: usd
+  }
+
+  measure: average_retail_price {
+    type: average
+    # sql: "link";;
+    value_format: "#,##0.00;(#,##0.00)"
+    html: <p style="color: #5A2FC2; background-color: #E5E5E6; font-size: 180%; font-weight: bold; text-align:center">{{ retail_price._value }} </p> ;;
+  }
+
 
 }

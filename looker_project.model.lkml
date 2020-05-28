@@ -17,9 +17,45 @@ access_grant: access_grants_1 {
   user_attribute: color
 }
 
+explore: derived_table_subquery {
+#   join: order_items {
+#     sql_on: ${order_items.id} = ${derived_table_subquery.id} ;;
+# }
+}
+
+explore: products_filter_dont_touch {
+  join: inventory_items {
+    type: left_outer
+    sql_on: ${inventory_items.product_id} = ${products_filter_dont_touch.id};;
+    relationship: one_to_many
+  }
+}
+
+explore: users_date {
+  view_name: users
+
+  join: users_datestart_dateend {
+    sql_on: ${users.id} = ${users_datestart_dateend.id} ;;
+  }
+}
+
+explore: derived_table_base {
+  view_name: derived_table_avg
+}
+
+explore: cxp_visit_bugs {
+  view_name: derived_table_avg
+  extends: [derived_table_base]
+
+  join: derived_table {}
+
+}
+
 explore: derived_table_10k {
   persist_with: looker_project_default_datagroup
 }
+
+explore: extending_order_items {}
 
 explore: extension_hidden {
   extension: required
@@ -35,7 +71,7 @@ explore: order_items_3 {
   extends: [extension_hidden]
   from: orders
   join: users {
-    sql_on: ${users.id} = ${any_name_that_i_want.id} ;;
+    sql_on: ${users.id} >= ${any_name_that_i_want.id} ;;
     relationship: one_to_one
   }
 
@@ -100,17 +136,19 @@ explore: inventory_items {
 }
 
 explore: order_items {
+
   description: "English or French?"
+
+  join: inventory_items {
+    type: left_outer
+    sql_on: ${order_items.inventory_item_id} = ${inventory_items.id};;
+    relationship: many_to_one
+  }
+
   join: orders {
     view_label: "orders"
     type: left_outer
     sql_on: ${order_items.id} = ${orders.id} ;;
-    relationship: many_to_one
-  }
-
-  join: inventory_items {
-    type: left_outer
-    sql_on: ${order_items.inventory_item_id} = ${inventory_items.id} ;;
     relationship: many_to_one
   }
 
@@ -144,28 +182,13 @@ explore: order_items {
     sql_on: ${order_items.id} = ${derived_table.id} ;;
     relationship: one_to_one
   }
-}
 
-explore: orders {
-  conditionally_filter: {}
-  join: users {
+  join: derived_table_avg {
     type: left_outer
-    sql_on: ${orders.user_id} = ${users.id} ;;
-    relationship: many_to_one
+    sql_on: 1=1 ;;
   }
 }
 
-
-
-explore: users_cohort {
-  from: users
-  join: test_derived_user_cohort {
-    view_label: "XX - User Cohort Filters"
-    type: inner
-    relationship: many_to_one
-    sql_on: ${users_cohort.id} = ${test_derived_user_cohort.user_id} ;;
-  }
-}
 
 explore: products_all_the_liquid {
   join: inventory_items {
@@ -175,19 +198,44 @@ explore: products_all_the_liquid {
   }
 
 }
+#
 
-explore: order_items_parameter {
-  sql_always_where:
-  {% if order_items_parameter.date_filter._is_filtered %}
---  ${order_items_parameter.returned_month}
-  {% condition order_items_parameter.date_filter %} ${order_items_parameter.returned_date} {% endcondition %}
-  {% else %}
-  ${order_items_parameter.returned_date} = (SELECT max(returned_at) FROM demo_db.order_items)
-  {% endif %}
-  ;;
+# explore: order_items_parameter {
+#   always_filter: {
+#     filters: [date_granularity: "Testing^_this^_out"]
+#   }
+#   join: new_ndt {
+#     sql_on: ${order_items_parameter.id} = ${new_ndt.id} ;;
+
+# }
+# #   sql_always_where:
+# #   {% if order_items_parameter.date_filter._is_filtered %}
+# # --  ${order_items_parameter.returned_month}
+# #   {% condition order_items_parameter.date_filter %} ${order_items_parameter.returned_date} {% endcondition %}
+# #   {% else %}
+# #   ${order_items_parameter.returned_date} = (SELECT max(returned_at) FROM demo_db.order_items)
+# #   {% endif %}
+# #   ;;
+# }
+
+# explore: order_items_parameter {
+#   sql_always_where:
+#     {% if order_items_parameter.last_x_days._parameter_value == '7' %}
+#     ((( ${order_items_parameter.returned_date}) >= ((DATE_ADD(CURDATE(),INTERVAL {% parameter order_items_parameter.last_x_days %} day))) AND (${order_items_parameter.returned_date}) < ((DATE_ADD(DATE_ADD(CURDATE(),INTERVAL {% parameter order_items_parameter.last_x_days %} day),INTERVAL {% parameter order_items_parameter.last_x_days %} day)))))
+#     {% else %}
+#     NULL
+#     {% endif %} ;;
+# }
+
+
+explore: dt_with_templated_filters {
+  always_filter: {
+    filters: {
+      field: the_date_filter
+      value: "2"
+    }
+  }
 }
-
-explore: dt_with_templated_filters {}
 
 explore: user_data {
   join: users {
@@ -202,6 +250,12 @@ explore: users_with_access_filter {
   access_filter: {
     field: users.city
     user_attribute: city
+  }
+
+  always_join: [orders]
+  join: orders {
+    type: left_outer
+    sql_on: ${orders.user_id} = ${users.id} ;;
   }
 }
 
@@ -225,7 +279,12 @@ explore: zozo_table_20190507 {
   }
 }
 
-explore: users_ndt {}
+explore: users_ndt {
+  access_filter: {
+    field: users_ndt.gender
+    user_attribute: testing
+  }
+}
 
 map_layer: chapter_01 {
   feature_key: "2019_SVNJB_Chapter_Boundaries"

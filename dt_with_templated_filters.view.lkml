@@ -1,19 +1,34 @@
 view: dt_with_templated_filters {
-
+view_label: "Testing out for Owen"
     derived_table: {
       sql: SELECT order_items.id AS id,
                   SUM(order_items.sale_price) AS total_sale_price,
                   AVG(order_items.sale_price) AS avg_sale_price,
                   MAX(returned_at) AS latest_date_returned,
                   MIN(returned_at) AS earliest_date_returned,
+                  COUNT(*) AS count,
+                  -1 as EthnicityKey,
                   returned_at
+          -- OC Review 3/11/19: updated logic to populate filter suggestions.
 
            FROM demo_db.order_items  AS order_items
-           WHERE {% condition the_sales_price %} order_items.sales_price {% endcondition %}
-           OR  {% condition the_date_filter %} order_items.returned_at {% endcondition %}
+  --        WHERE returned_at >= {% date_start date_filter_name %}
+
+          WHERE {% if dt_with_templated_filters.is_section8._is_filtered %} {% condition dt_with_templated_filters.is_section8 %} count {% endcondition %} {% else %} 1=1 {% endif %}
 
     ;;
+    datagroup_trigger: looker_project_default_datagroup
     }
+
+
+    filter: date_filter_name {
+      type: date
+    }
+
+  dimension: is_section8 {
+    type: yesno
+    sql: ${TABLE}.id > 15 ;;
+  }
 
     dimension: id {
       type: number
@@ -48,12 +63,15 @@ view: dt_with_templated_filters {
       sql: ${TABLE}.earliest_date_returned ;;
     }
 
+    measure: count {}
+
     filter: the_sales_price {
       type: number
     }
 
   filter: the_date_filter {
-    type: date
+    type: string
+    default_value: "1"
   }
 
   dimension: the_date {
